@@ -1,33 +1,29 @@
 import { Server, Socket } from 'socket.io';
 
-import { createServer } from "http";
+import { createServer } from 'http';
 
 const httpServer = createServer();
 
-const server = new Server(httpServer,{
-    cors:{
-        origin:'*' 
-    }
+const server = new Server(httpServer, {
+	cors: {
+		origin: '*'
+	}
 });
 
+const onConnection = (socket: Socket): void => {
+	socket.on('send-message', (message: string, roomId: string) => {
+		socket.to(roomId).emit('receive-Message', message);
+		console.log(message);
+	});
+	socket.on('join-room', (roomId: string) => {
+		socket.join(roomId);
+		// socket.emit('receive-Message', `joined the room ${roomId}`);
+		const data = { roomId };
 
-const onConnection = (socket: Socket):void => {
-    // console.log(`Connected with ${socket.id}`);
-    socket.on('send-message', (message:string, room:string)=>{
-        socket.to(room).emit('receive-Message',message);
-        console.log(message);
-
-    })
-    try{
-        socket.on('join-room',(room:string)=>{
-            socket.join(room);
-            socket.emit('receive-Message',`joined the room ${room}`);  
-        })    
-    }catch(error){
-        socket.emit('join-response',`${error}`);
-    }  
-}
+		socket.emit('join-response', { data, error: false });
+	});
+};
 
 server.on('connection', onConnection);
 
-httpServer.listen(3000);
+httpServer.listen(4000);
