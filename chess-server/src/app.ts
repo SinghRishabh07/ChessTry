@@ -11,17 +11,24 @@ const server = new Server(httpServer, {
 });
 
 const onConnection = (socket: Socket): void => {
-	socket.on('send-message', (message: string, roomId: string) => {
-		socket.to(roomId).emit('receive-Message', message);
-		console.log(message);
-	});
+	
+	socket.on('send-message',(data)=>{
+		socket.broadcast.to(data.id).emit('receive-message',data.message);
+		// console.log(`room id is ${data.id}`);
+		// console.log(`message is  ${data.message}`);
+	})
+	
 	socket.on('join-room', (roomId: string) => {
 		socket.join(roomId);
-		// socket.emit('receive-Message', `joined the room ${roomId}`);
 		const data = { roomId };
-
 		socket.emit('join-response', { data, error: false });
 	});
+
+	socket.on('disconnect',()=>{
+		 console.log('User has left!!!!'); 
+	})
+	
+	
 };
 
 server.on('connection', onConnection);
