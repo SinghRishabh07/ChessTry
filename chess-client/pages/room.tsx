@@ -8,34 +8,55 @@ import styles from '../styles/Home.module.css';
 
 const room = () => {
 	const router = useRouter();
+
 	const id = router.query.id;
+	const user = router.query.user;
+	
+	
 
 	const msgInput = useRef<HTMLInputElement>(null);
 	const [message,setmessage] = useState('')
 	const [chats, setchats] = useState<string[]>([]);
+	const [currentuser,setuser] = useState<string[]>([]);
 
-	const sendMsg = () =>{
+	const sendMsg = (e:any) =>{
+		e.preventDefault();
 		const msg: any = msgInput.current?.value;
+		console.log(`xyz is ${msg}`);
 		setmessage(msg);
-		setchats([...chats,msg]);
-		socket.emit('send-message',{id,message});
+		socket.emit('send-message',{id,msg,user});
 		msgInput.current!.value = '';
 	}
-	
+	useEffect(()=>{
+		const listen =socket.on('receive-message',(msg,user)=>{
+			setchats(prev=>[...prev,msg]);
+			setuser(olduser=>[...olduser,user]);
+			console.log(`rn user is :  ${user}`);
+		
+		})
+		return ()=>{
+			listen.off();
+		}
+	},[]);
+
 
 	return (
 		<div className={styles.container}>
 			<h1 className={styles.heading}>{id}'s Chat Room</h1>
-			<input type='text' placeholder='New Message!!' ref={msgInput} />
+			<input type='text' placeholder='New Message!!' ref={msgInput} 
+			onKeyPress={event => event.key === 'Enter'? sendMsg(event) : null}/>
 			<button className={styles.btn} onClick={sendMsg} >
 				Send
 			</button>
 			<Link href='/'>
 				<button className={styles.btn}>Game Room</button>
-			</Link>
-			{chats.map((msg, index) => {
-				return <div key={index}>{msg}</div>;
-			})}
+			</Link>	
+			{
+				chats.map((msg,index)=>{
+					
+					return <div key={index}> {currentuser[index]} : {msg}</div>
+				})
+			}		
 		</div>
 	);
 };
@@ -57,8 +78,6 @@ export default room;
 				
 			</div>
 		</div> */}
-
-
 
 
 

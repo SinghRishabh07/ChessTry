@@ -15,6 +15,14 @@
     justify-content: center; */
 
 }
+.userInput{
+    padding: 5px;
+    margin: 5px;
+}
+.roomInput{
+    padding: 5px;
+    margin: 5px;
+}
 .btn{
     background-color: #4CAF50; 
     border: none;

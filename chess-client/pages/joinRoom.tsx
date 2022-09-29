@@ -11,15 +11,19 @@ import type { MouseEvent } from 'react';
 const joinRoom = () => {
   
   const router = useRouter();
+
   const roomInput = useRef<HTMLInputElement>(null);  
+
+  const userRef = useRef<HTMLInputElement>(null);
+
   const joinRoom =(e:MouseEvent<HTMLElement>)=>{
     e.preventDefault();
-    socket.emit('join-room',`${roomInput.current?.value}`);
+    socket.emit('join-room',`${roomInput.current?.value}`,`${userRef.current?.value}`);
   }
   useEffect(()=>{
     const listener = socket.on('join-response',(res)=>{
       if(res.error) console.log('server error sorry!!!');
-      else router.push(`/room/?id=${roomInput.current?.value}`)
+      else router.push(`/room/?id=${roomInput.current?.value}&user=${userRef.current?.value}`)
     })
     return ()=>{
       listener.off();
@@ -30,10 +34,10 @@ const joinRoom = () => {
     <div className={styles.container}>
       <h1 className={styles.heading}>Join Room</h1>
         <form>
-            <input type='text' placeholder='Enter Room Id' ref={roomInput} />
-              <button className={styles.btn} onClick={joinRoom}>Join</button>
-                 
-
+            <input type="text" placeholder='Enter your name' ref={userRef} className={styles.userInput}  />
+            <input type='text' placeholder='Enter Room Id' ref={roomInput} className={styles.roomInput} />
+            <button className={styles.btn} onClick={joinRoom}>Join</button>
+                
             <Link href={'/'}>
               <button className={styles.btn}>Game Room</button>
             </Link>        
